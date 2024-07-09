@@ -12,7 +12,7 @@ import med.voll.api.domain.paciente.Paciente;
 import java.time.LocalDateTime;
 
 @Table(name = "consultas")
-@Entity(name = "consulta")
+@Entity(name = "Consulta")
 //Metodos de lombok
 @Getter
 @NoArgsConstructor
@@ -32,5 +32,5 @@ public class Consulta {
     @JoinColumn(name = "paciente_id")
     private Paciente paciente;
 
-    private LocalDateTime dateTime;
+    private LocalDateTime fecha;
 }

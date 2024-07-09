@@ -27,10 +27,10 @@ public class TokenService {
                     .withIssuer("voll med")
                     .withSubject(usuario.getLogin())
                     .withClaim("id", usuario.getId())
-                    .withExpiresAt(generateFechaExpiracion())
+                    .withExpiresAt(generarFechaExpiracion())
                     .sign(algorithm);
-        } catch (JWTCreationException exception) {
-            throw new RuntimeException(exception);
+        } catch (JWTCreationException exception){
+            throw new RuntimeException();
         }
     }
 
@@ -38,21 +38,25 @@ public class TokenService {
         if (token == null) {
             throw new RuntimeException();
         }
-        DecodedJWT verifier;
+        DecodedJWT verifier = null;
         try {
-            Algorithm algorithm = Algorithm.HMAC256(apiSecret); // Validando firma
+            Algorithm algorithm = Algorithm.HMAC256(apiSecret); // validando firma
             verifier = JWT.require(algorithm)
                     .withIssuer("voll med")
                     .build()
                     .verify(token);
-            return verifier.getSubject();
+            verifier.getSubject();
         } catch (JWTVerificationException exception) {
             System.out.println(exception.toString());
-            throw new RuntimeException("Token verification failed", exception);
         }
+        if (verifier.getSubject() == null) {
+            throw new RuntimeException("Verifier invalido");
+        }
+        return verifier.getSubject();
     }
 
-    private Instant generateFechaExpiracion() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.UTC);
+    private Instant generarFechaExpiracion() {
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-05:00"));
     }
+
 }

@@ -1,6 +1,4 @@
 package med.voll.api.infra.security;
 
-public record DatosJWTToken(
-        String jwoken
-) {
+public record DatosJWTToken(String jwTtoken) {
 }

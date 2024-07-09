@@ -19,30 +19,22 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Autowired
     private TokenService tokenService;
-
     @Autowired
-    private UsuariosRepository usuariosRepository;
+    private UsuariosRepository usuarioRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // No filtrar la ruta de login
-        if (request.getServletPath().equals("/login")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         // Obtener el token del header
-        var autHeader = request.getHeader("Authorization");
-        if (autHeader != null && autHeader.startsWith("Bearer ")) {
-            var token = autHeader.replace("Bearer ", "").trim();
-            var subject = tokenService.getSubject(token);
-            if (subject != null) {
-                // Token válido
-                var usuario = usuariosRepository.findByLogin(subject);
-                if (usuario != null) {
-                    var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+        var authHeader = request.getHeader("Authorization");
+        if (authHeader != null) {
+            var token = authHeader.replace("Bearer ", "");
+            var nombreUsuario = tokenService.getSubject(token); // extract username
+            if (nombreUsuario != null) {
+                // Token valido
+                var usuario = usuarioRepository.findByLogin(nombreUsuario);
+                var authentication = new UsernamePasswordAuthenticationToken(usuario, null,
+                        usuario.getAuthorities()); // Forzamos un inicio de sesion
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
         filterChain.doFilter(request, response);

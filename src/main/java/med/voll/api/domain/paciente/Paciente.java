@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 import med.voll.api.domain.direccion.Direccion;
 
 
-@Entity(name = "paciente")
+@Entity(name = "Paciente")
 @Table(name = "pacientes")
 //Metodos de lombok
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 public class Paciente {
 
     @Id
@@ -22,19 +22,39 @@ public class Paciente {
     private Long id;
     private String nombre;
     private String email;
-    private String ficha;
+
     private String telefono;
+
     private String documento;
+
     @Embedded
     private Direccion direccion;
 
-    public Paciente(DatosRegistroPaciente datosRegistroPaciente) {
-        this.nombre = datosRegistroPaciente.nombre();
-        this.email = datosRegistroPaciente.email();
-        this.documento = datosRegistroPaciente.ficha();
-        this.telefono = datosRegistroPaciente.telefono();
-        this.direccion = new Direccion(datosRegistroPaciente.direccion());
+    private Boolean activo;
+
+    public Paciente(DatosRegistroPaciente datos) {
+        this.activo = true;
+        this.nombre = datos.nombre();
+        this.email = datos.email();
+        this.telefono = datos.telefono();
+        this.documento = datos.documento();
+        this.direccion = new Direccion(datos.direccion());
+    }
+
+    public void actualizarInformacoes(DatosActualizacionPaciente datos) {
+        if (datos.nombre() != null) {
+            this.nombre = datos.nombre();
+        }
+        if (datos.telefono() != null) {
+            this.telefono = datos.telefono();
+        }
+        if (datos.direccion() != null) {
+            this.direccion.actualizarDatos(datos.direccion());
+        }
 
     }
 
+    public void eliminar() {
+        this.activo = false;
+    }
 }
